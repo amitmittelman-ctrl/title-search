@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title Company Comparison: Missouri vs. California</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Corporate Calm -->
+    <!-- Application Structure Plan: A single-page dashboard with a top navigation bar for smooth scrolling to thematic sections. The core design is a side-by-side comparison of Missouri and California for each topic, which is the most intuitive way to present this comparative data. A primary toggle allows users to filter the view to a single state, simplifying the interface for focused research. This structure was chosen to directly answer the user's comparative query, making it easy to see differences at a glance while allowing for deeper dives into specific topics or states. -->
+    <!-- Visualization & Content Choices: Regulatory Info -> Goal: Compare Complexity -> Viz: Key-value list in cards -> Interaction: State filter toggle -> Justification: Textual comparison is best for nuanced regulatory details. Bond Requirements -> Goal: Compare Amounts -> Viz: Bar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Directly visualizes the significant difference in capital requirements. Revenue Structure -> Goal: Compare Income Streams -> Viz: Donut Charts (Chart.js) -> Interaction: Hover tooltips -> Justification: Clearly shows the proportional differences in revenue sources. Staffing -> Goal: Compare Team Composition -> Viz: Tabular card format -> Interaction: State filter toggle -> Justification: Best for comparing roles and required qualifications. Digitization -> Goal: Compare Tech Adoption -> Viz: Radar Chart (Chart.js) -> Interaction: Hover tooltips -> Justification: Provides a multi-dimensional view of technological advancement across different facets of the industry. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link:hover {
+            color: #0ea5e9;
+        }
+        .nav-link.active {
+            color: #0ea5e9;
+            border-bottom-color: #0ea5e9;
+        }
+        .state-toggle-btn {
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .state-toggle-btn.active {
+            background-color: #0ea5e9;
+            color: white;
+        }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <header class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <h1 class="text-xl md:text-2xl font-bold text-slate-900">MO vs. CA Title Co.</h1>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#regulatory" class="nav-link text-sm font-medium text-slate-600 border-b-2 border-transparent pb-1">Regulation</a>
+                    <a href="#financials" class="nav-link text-sm font-medium text-slate-600 border-b-2 border-transparent pb-1">Financials</a>
+                    <a href="#staffing" class="nav-link text-sm font-medium text-slate-600 border-b-2 border-transparent pb-1">Staffing</a>
+                    <a href="#digitization" class="nav-link text-sm font-medium text-slate-600 border-b-2 border-transparent pb-1">Digitization</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4">Comparing Title Company Operations</h2>
+            <p class="max-w-3xl mx-auto text-lg text-slate-600">An interactive guide to the key differences in starting and owning a title company in Missouri versus California. Use the controls below to filter the view.</p>
+            
+            <div class="mt-8 flex justify-center">
+                <div class="flex items-center bg-slate-200 rounded-full p-1 text-sm font-medium">
+                    <button id="show-all-btn" class="state-toggle-btn active px-4 py-2 rounded-full">Both States</button>
+                    <button id="show-mo-btn" class="state-toggle-btn px-4 py-2 rounded-full">Missouri</button>
+                    <button id="show-ca-btn" class="state-toggle-btn px-4 py-2 rounded-full">California</button>
+                </div>
+            </div>
+        </section>
+
+        <div id="comparison-grid" class="space-y-12">
+            
+            <section id="regulatory" class="scroll-mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Regulatory Environment</h3>
+                <p class="text-slate-600 mb-6 max-w-4xl">This section outlines the primary governing bodies and general complexity of the regulatory landscape for title companies in each state. California is known for its stringent oversight, while Missouri offers a more straightforward framework.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 state-grid">
+                    <div class="bg-white p-6 rounded-lg shadow-md state-card" data-state="mo">
+                        <h4 class="text-xl font-semibold mb-4 text-sky-700">Missouri</h4>
+                        <ul class="space-y-3 text-slate-700">
+                            <li class="flex items-start"><span class="font-bold w-36 shrink-0">Governing Body:</span> <span>Missouri Department of Commerce and Insurance (DCI)</span></li>
+                            <li class="flex items-start"><span class="font-bold w-36 shrink-0">Licensing:</span> <span>Requires an agency license and individual producer licenses for employees transacting title business.</span></li>
+                            <li class="flex items-start"><span class="font-bold w-36 shrink-0">Complexity:</span> <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-sm font-medium">Moderate</span></li>
+                            <li class="flex items-start"><span class="font-bold w-36 shrink-0">Key Focus:</span> <span>Financial solvency, consumer protection, and proper handling of escrow funds. Regulations are generally seen as business-friendly.</span></li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md state-card" data-state="ca">
+                        <h4 class="text-xl font-semibold mb-4 text-red-700">California</h4>
+                        <ul class="space-y-3 text-slate-700">
+                           <li class="flex items-start"><span class="font-bold w-36 shrink-0">Governing Body:</span> <span>California Department of Insurance (CDI)</span></li>
+                           <li class="flex items-start"><span class="font-bold w-36 shrink-0">Licensing:</span> <span>Requires a Certificate of Authority for the agency. Employees in escrow must be licensed or certified. Very strict compliance.</span></li>
+                           <li class="flex items-start"><span class="font-bold w-36 shrink-0">Complexity:</span> <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm font-medium">High</span></li>
+                           <li class="flex items-start"><span class="font-bold w-36 shrink-0">Key Focus:</span> <span>Strict rate filing regulations, anti-rebate laws (RESPA compliance is critical), and extensive consumer disclosure requirements.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="financials" class="scroll-mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Financials: Bonds & Revenue</h3>
+                <p class="text-slate-600 mb-6 max-w-4xl">Explore the financial requirements and typical revenue models. This includes surety bond requirements, which serve as financial protection, and how income is generated through various fees. Higher property values in California directly impact both bond amounts and revenue potential.</p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-semibold text-center mb-4">Surety Bond Requirements</h4>
+                        <p class="text-center text-sm text-slate-500 mb-4">Minimum required bond to operate.</p>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="bondChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md">
+                        <h4 class="text-xl font-semibold text-center mb-4">Typical Revenue Structure</h4>
+                        <p class="text-center text-sm text-slate-500 mb-4">Estimated breakdown of income sources.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 state-grid">
+                             <div class="state-card" data-state="mo">
+                                <h5 class="text-center font-medium text-sky-700">Missouri</h5>
+                                <div class="chart-container h-48 md:h-56">
+                                    <canvas id="revenueChartMO"></canvas>
+                                </div>
+                            </div>
+                            <div class="state-card" data-state="ca">
+                                <h5 class="text-center font-medium text-red-700">California</h5>
+                                <div class="chart-container h-48 md:h-56">
+                                    <canvas id="revenueChartCA"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="staffing" class="scroll-mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Staffing & Team Structure</h3>
+                <p class="text-slate-600 mb-6 max-w-4xl">Staffing is a major operational component. The complexity of transactions and the regulatory environment dictate the necessary roles, seniority, and team size. California's market demands a higher level of specialized, licensed personnel.</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 state-grid">
+                    <div class="bg-white p-6 rounded-lg shadow-md state-card" data-state="mo">
+                        <h4 class="text-xl font-semibold mb-4 text-sky-700">Missouri</h4>
+                        <ul class="space-y-4">
+                            <li><strong class="block text-slate-900">Key Roles:</strong> Title Examiner, Closing Agent, Sales/Marketing Representative.</li>
+                            <li><strong class="block text-slate-900">Team Size:</strong> Can start lean, often with 3-5 key personnel for a smaller operation. Cross-training is common.</li>
+                            <li><strong class="block text-slate-900">Seniority:</strong> A mix of experienced closers and junior examiners is viable. Formal licensing for escrow officers is less common.</li>
+                            <li><strong class="block text-slate-900">Hiring Focus:</strong> Emphasis on customer service, attention to detail, and local market knowledge.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md state-card" data-state="ca">
+                        <h4 class="text-xl font-semibold mb-4 text-red-700">California</h4>
+                        <ul class="space-y-4">
+                            <li><strong class="block text-slate-900">Key Roles:</strong> Licensed Escrow Officer, Senior Title Officer, Compliance Officer, Sales Executive.</li>
+                            <li><strong class="block text-slate-900">Team Size:</strong> Larger teams are typical due to transaction volume and complexity, often 8-10+ for a new office.</li>
+                            <li><strong class="block text-slate-900">Seniority:</strong> Heavy reliance on experienced, licensed professionals. Senior Escrow Officers are critical and in high demand.</li>
+                            <li><strong class="block text-slate-900">Hiring Focus:</strong> Deep expertise in California-specific regulations, compliance, and handling complex, high-value transactions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="digitization" class="scroll-mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Digitization & Technology</h3>
+                <p class="text-slate-600 mb-6 max-w-4xl">This chart evaluates the technological maturity of the title industry and its supporting data infrastructure in each state. It covers the availability of online records and the adoption of modern digital closing practices like Remote Online Notarization (RON).</p>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                     <div class="chart-container h-80 md:h-96">
+                        <canvas id="digitizationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+    </main>
+    <footer class="bg-slate-800 text-white mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-sm">
+            <p>&copy; 2025 Title Co. Analytics. All data is estimated for illustrative purposes.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = {
+                bonds: {
+                    labels: ['Missouri', 'California'],
+                    values: [100000, 500000]
+                },
+                revenue: {
+                    labels: ['Insurance Premiums', 'Escrow Fees', 'Closing & Other Fees'],
+                    mo: [50, 30, 20],
+                    ca: [65, 25, 10]
+                },
+                digitization: {
+                    labels: ['Online Deed Records', 'Online Court Records', 'Data Plant Availability', 'eClosing Adoption', 'RON Legality & Use'],
+                    mo: [7, 6, 5, 6, 8],
+                    ca: [9, 8, 8, 7, 7]
+                }
+            };
+
+            const colors = {
+                mo: 'rgb(2, 132, 199)',
+                ca: 'rgb(185, 28, 28)',
+                mo_bg: 'rgba(2, 132, 199, 0.2)',
+                ca_bg: 'rgba(185, 28, 28, 0.2)'
+            };
+
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {}
+                    }
+                },
+            };
+
+            new Chart(document.getElementById('bondChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.bonds.labels,
+                    datasets: [{
+                        label: 'Minimum Surety Bond ($)',
+                        data: data.bonds.values,
+                        backgroundColor: [colors.mo_bg, colors.ca_bg],
+                        borderColor: [colors.mo, colors.ca],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.parsed.y.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('revenueChartMO'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.revenue.labels,
+                    datasets: [{
+                        label: 'Revenue %',
+                        data: data.revenue.mo,
+                        backgroundColor: ['#0ea5e9', '#38bdf8', '#7dd3fc'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('revenueChartCA'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.revenue.labels,
+                    datasets: [{
+                        label: 'Revenue %',
+                        data: data.revenue.ca,
+                        backgroundColor: ['#dc2626', '#ef4444', '#f87171'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}%`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            new Chart(document.getElementById('digitizationChart'), {
+                type: 'radar',
+                data: {
+                    labels: data.digitization.labels,
+                    datasets: [{
+                        label: 'Missouri',
+                        data: data.digitization.mo,
+                        fill: true,
+                        backgroundColor: colors.mo_bg,
+                        borderColor: colors.mo,
+                        pointBackgroundColor: colors.mo,
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: colors.mo
+                    }, {
+                        label: 'California',
+                        data: data.digitization.ca,
+                        fill: true,
+                        backgroundColor: colors.ca_bg,
+                        borderColor: colors.ca,
+                        pointBackgroundColor: colors.ca,
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: colors.ca
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        r: {
+                            angleLines: {
+                                display: false
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 10,
+                             pointLabels: {
+                                font: {
+                                    size: 10
+                                }
+                            }
+                        }
+                    },
+                     plugins: {
+                        ...chartOptions.plugins,
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.r}/10`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            const showAllBtn = document.getElementById('show-all-btn');
+            const showMoBtn = document.getElementById('show-mo-btn');
+            const showCaBtn = document.getElementById('show-ca-btn');
+            const stateCards = document.querySelectorAll('.state-card');
+            const stateGrids = document.querySelectorAll('.state-grid');
+            const toggleBtns = [showAllBtn, showMoBtn, showCaBtn];
+
+            function updateView(state) {
+                toggleBtns.forEach(btn => btn.classList.remove('active'));
+                if (state === 'all') showAllBtn.classList.add('active');
+                if (state === 'mo') showMoBtn.classList.add('active');
+                if (state === 'ca') showCaBtn.classList.add('active');
+
+                stateGrids.forEach(grid => {
+                    if (state === 'all') {
+                        grid.classList.remove('md:grid-cols-1');
+                        grid.classList.add('md:grid-cols-2');
+                    } else {
+                        grid.classList.remove('md:grid-cols-2');
+                        grid.classList.add('md:grid-cols-1');
+                    }
+                });
+
+                stateCards.forEach(card => {
+                    if (state === 'all' || card.dataset.state === state) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+
+            showAllBtn.addEventListener('click', () => updateView('all'));
+            showMoBtn.addEventListener('click', () => updateView('mo'));
+            showCaBtn.addEventListener('click', () => updateView('ca'));
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section[id]');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 80) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
